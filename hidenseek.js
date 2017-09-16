@@ -2,7 +2,7 @@ function hide(path, pokemonList)
 {
     let pokemons = [],
         cap = 3,
-        promises = [];
+        promisesDir = [];
 
     if (pokemonList.length < 3)
     {
@@ -16,10 +16,10 @@ function hide(path, pokemonList)
     
     for (let i = 1; i <= 10; i++)
     {
-        i < 10 ? promises.push(createDir(`${path}/0${i}`)) : promises.push(createDir(`${path}/${i}`))
+        i < 10 ? promisesDir.push(createDir(`${path}/0${i}`)) : promisesDir.push(createDir(`${path}/${i}`))
     }
     
-    Promise.all(promises)
+    Promise.all(promisesDir)
         .then(createFile)
         .then(showMessage)
         .catch(console.log)

@@ -23,12 +23,8 @@ if (process.argv[2] === 'hide')
                 hidenseek.hide(process.argv[3], JSON.parse(content));
                 })
             }
-        })
-        
-    
-    })
-    
-    
+        })    
+    })    
 }
 if (process.argv[2] === 'seek')
 {
