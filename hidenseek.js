@@ -1,3 +1,38 @@
+function createDir(path)
+{
+    return new Promise((done, fail) => {
+         fs.mkdir(path, err => {
+             if (err)
+             {
+                 fail(err);
+             }
+             else
+             {
+                  done(path);
+             }
+         })     
+    });
+}
+
+function createFile(path, cap, pokemons)
+{
+    let promises = []
+    for (let i = 0; i < cap; i++)
+    {
+        let promise = new Promise((done, fail) => {
+            fs.appendFile(`${path.splice(Math.floor(Math.random() * path.length), 1)}/pokemon.txt`, pokemons[i], err => {
+                    if (err)
+                    {
+                        fail(err);
+                    }
+                    done();
+            });
+        });
+        promises.push(promise);
+    }
+    return Promise.all(promises);
+}
+
 function hide(path, pokemonList)
 {
     let pokemons = [],
@@ -18,11 +53,6 @@ function hide(path, pokemonList)
     {
         i < 10 ? promisesDir.push(createDir(`${path}/0${i}`)) : promisesDir.push(createDir(`${path}/${i}`))
     }
-    
-    Promise.all(promisesDir)
-        .then(createFile)
-        .then(showMessage)
-        .catch(console.log)
 
     function showMessage(data)
     {
@@ -32,41 +62,25 @@ function hide(path, pokemonList)
         }
     }
     
-    function createDir(path)
-    {
-        return new Promise((done, fail) => {
-            fs.mkdir(path, err => {
-                if (err)
-                {
-                    fail(err);
-                }
-                else
-                {
-                    done(path);
-                }
-            })     
-        });
-    }
-
-    function createFile(path)
-    {
-        let promises = []
-        for (let i = 0; i < cap; i++)
-        {
-            let promise = new Promise((done, fail) => {
-                fs.appendFile(`${path.splice(Math.floor(Math.random() * path.length), 1)}/pokemon.txt`, pokemons[i], err => {
-                        if (err)
-                        {
-                            fail(err);
-                        }
-                        done();
-                });
-            });
-            promises.push(promise);
-        }
-        return Promise.all(promises);
-    }
+    return Promise.all(promisesDir)
+            .then(done => createFile(done, cap, pokemons))
+            .then(showMessage)
+            .catch(console.log)
 }
+
+function readFiles(pokemons) {
+    pokemons.forEach(pokemon => {
+        let path = `${pokemon[0]}/${pokemon[1]}`
+        fs.readFile(path, (err, content) => {
+             if (err)
+             {
+                 throw err;
+             }
+             console.log(`Покемон "${content}" найден в папке ${pokemon[0]}`)
+        })
+    })
+}
+
 function seek(path)
 {
     let promises = [],
@@ -77,9 +91,7 @@ function seek(path)
         i < 10 ? currentPath = `${path}/0${i}` : currentPath = `${path}/${i}`;            
         promises.push(findFiles(currentPath));        
     }
-    
-    Promise.all(promises).then(readFiles);
-    
+
     function findFiles(path)
     {
         return new Promise((done, fail) => {
@@ -96,19 +108,7 @@ function seek(path)
             })
         })
     }
-    
-    function readFiles() {
-        pokemons.forEach(pokemon => {
-            let path = `${pokemon[0]}/${pokemon[1]}`
-            fs.readFile(path, (err, content) => {
-                if (err)
-                {
-                    throw err;
-                }
-                console.log(`Покемон "${content}" найден в папке ${pokemon[0]}`)
-            })
-        })
-    }
+    return Promise.all(promises).then(() => readFiles(pokemons));
 }
 
 exports.hide = hide;
